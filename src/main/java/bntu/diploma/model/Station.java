@@ -51,7 +51,17 @@ public class Station {
     /**
      * The date when the station was inspected last time
      * */
+    @Column(nullable = false)
     private String lastInspection;
+
+    /**
+     *
+     * Shows the level of the station's battery
+     *
+     * The param can equal the value from 1 to 100.
+     *
+     * */
+    private Integer batteryLevel;
 
     public Station() {
     }
@@ -120,4 +130,11 @@ public class Station {
         this.lastInspection = lastInspection;
     }
 
+    public Integer getBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public void setBatteryLevel(Integer batteryLevel) {
+        this.batteryLevel = batteryLevel;
+    }
 }

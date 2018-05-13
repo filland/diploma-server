@@ -2,11 +2,16 @@ package bntu.diploma.controller;
 
 import bntu.diploma.model.*;
 import bntu.diploma.repository.*;
+import bntu.diploma.utils.CipherUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
+
+import static bntu.diploma.utils.CipherUtils.decrypt;
 
 /**
  *
@@ -16,7 +21,6 @@ import java.util.*;
 
 @RestController
 public class WeatherServerController {
-
 
     @Autowired
     private StationRepository stationRepository;
@@ -29,6 +33,9 @@ public class WeatherServerController {
 
     @Autowired
     private OblastRepository oblastRepository;
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
 
     private final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat ("ddMMyyyy HHmm");
@@ -89,18 +96,18 @@ public class WeatherServerController {
             System.out.println("else");
 
             return null;
-
         }
     }
 
 
     @RequestMapping(value = "/report", method = RequestMethod.GET)
-    public String weatherReport(@RequestParam(value = "key") String stationsKey,
+    public void weatherReport(@RequestParam(value = "key") String stationsKey,
                               @RequestParam(value = "temp") String temperature,
                               @RequestParam(value = "hum") String humidity,
                               @RequestParam(value = "pres") String pressure,
                               @RequestParam(value = "wspeed") String windSpeed,
-                              @RequestParam(value = "wdir") String windDirection){
+                              @RequestParam(value = "wdir") String windDirection,
+                              @RequestParam(value = "battery") String batteryLevel){
 
         Station station = stationRepository.findByStationUniqueKey(stationsKey);
 
@@ -116,18 +123,19 @@ public class WeatherServerController {
                 weatherInfo.setWindSpeed(Double.valueOf(windSpeed));
                 weatherInfo.setWindDirection(Double.valueOf(windDirection));
 
+                // save received data to the database
                 weatherInfoRepository.save(weatherInfo);
+
+                // update the station's battery level
+                station.setBatteryLevel(Integer.valueOf(batteryLevel));
+                stationRepository.save(station);
+
             } catch (NumberFormatException e) {
 
                 e.printStackTrace();
-                return "a problem with data";
+
             }
 
-            return "done";
-
-        } else {
-
-            return "bad key";
         }
 
 
@@ -135,23 +143,113 @@ public class WeatherServerController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login(@RequestParam(value = "key") String encyptedKey,
+    public String login(@RequestParam(value = "key") String encryptedKey,
                         @RequestParam(value = "id") String usersID){
-        // TODO
-        return "token";
+
+        Optional<User> optional = userRepository.findById(Long.valueOf(usersID));
+        User user;
+
+        // if a user with such id was found
+        if (optional.isPresent()){
+            user = optional.get();
+
+            String decryptionResult = CipherUtils.decrypt(encryptedKey, null);
+
+            // if user's actual key matches the key gotten after encryption
+            if (user.getApiKey().equals(decryptionResult)){
+
+                Token usersToken = new Token();
+                usersToken.setExpired(false);
+                usersToken.setLoginDateTime(DATE_FORMATTER.format(new Date()));
+                usersToken.setUser(user);
+
+                // TODO generate a token
+                usersToken.setToken(null);
+
+                try {
+                    tokenRepository.save(usersToken);
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                    return "token was not saved";
+                }
+
+
+                return "success according to HTTP protocol";
+            }
+
+        }
+
+        return null;
     }
 
-    @RequestMapping(value = "/change", method = RequestMethod.POST)
-    public String addNewStation(String addNecessaryParams){
-        // TODO
+    @RequestMapping(value = "/add_station", method = RequestMethod.POST)
+    public String addNewStation(@RequestParam(value = "token") String token,
+                                @RequestParam(value = "oblast")String oblast,
+                                @RequestParam(value = "installation") String installationDate,
+                                @RequestParam(value = "inspection") String lastInspectionDate,
+                                @RequestParam(value = "n_town") String nearestTown,
+                                @RequestParam(value = "longitude") String longitude,
+                                @RequestParam(value = "latitude") String latitude){
+
+        if(tokenRepository.findByToken(token) != null){
+
+            try {
+                Station newStation = new Station();
+
+                Oblast oblast2 = new Oblast();
+                oblast2.setOblastsId(Long.valueOf(oblast));
+
+                newStation.setOblast(oblast2);
+
+                // TODO generator of unique keys
+                newStation.setStationUniqueKey("key");
+
+                newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
+                newStation.setLastInspection(DATE_FORMATTER.format(LocalDateTime.parse(lastInspectionDate)));
+                newStation.setNearestTown(nearestTown);
+                newStation.setStationLongitude(Double.valueOf(longitude));
+                newStation.setStationLatitude(Double.valueOf(latitude));
+
+                stationRepository.save(newStation);
+
+                // TODO change
+                return "return a message which complies HTTP " +
+                        "protocol that creation was done successfully";
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+                return null;
+            }
+
+        } else {
+
+
+            return null;
+        }
+
+    }
+
+    @RequestMapping(value = "/change", method = RequestMethod.PUT)
+    public String changeStationsInfo(String stationId, Object updatedStation){
+        // TODO how to send a serialized object
+
+        Station station = (Station) updatedStation;
+
         return "added";
     }
 
     @RequestMapping(value = "/change", method = RequestMethod.PUT)
-    public String changeStationsInfo(String addNecessaryParams){
-        // TODO
+    public String changeStationsInfo2(String stationId, Object updatedStation){
+        // TODO how to send a serialized object
+
+        Station station = (Station) updatedStation;
+
         return "added";
     }
+
 
     @RequestMapping(value = "/check", method = RequestMethod.GET)
     public String check(){

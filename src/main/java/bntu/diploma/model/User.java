@@ -13,15 +13,20 @@ public class User {
     private Long id;
 
     @JsonIgnore
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String userName;
 
     @JsonIgnore
+    @Column(nullable = false)
     private String password;
 
     @JsonIgnore
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String apiKey;
+
+    @JsonIgnore
+    @Column(unique = true, nullable = false)
+    private String encryptionKey;
 
     /**
      * Indicates what access is allowed for the user
@@ -29,6 +34,7 @@ public class User {
      * If accessLevel equals 1 the user has an admin level access
      * If accessLevel equals 2 the user has an user level access
      * */
+    @Column(nullable = false)
     private Integer accessLevel;
 
     public User() { }
@@ -78,5 +84,13 @@ public class User {
 
     public void setAccessLevel(Integer accessLevel) {
         this.accessLevel = accessLevel;
+    }
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(String encryptionKey) {
+        this.encryptionKey = encryptionKey;
     }
 }
