@@ -121,7 +121,7 @@ public class WeatherServerController {
                 weatherInfo.setHumidity(Double.valueOf(humidity));
                 weatherInfo.setPressure(Double.valueOf(pressure));
                 weatherInfo.setWindSpeed(Double.valueOf(windSpeed));
-                weatherInfo.setWindDirection(Double.valueOf(windDirection));
+                weatherInfo.setWindDirection(Integer.valueOf(windDirection));
 
                 // save received data to the database
                 weatherInfoRepository.save(weatherInfo);
@@ -280,13 +280,13 @@ public class WeatherServerController {
         Station s = new Station();
         s.setStationsId(2L);
 
-        WeatherInfo weatherInfo = new WeatherInfo("1", 10.8,10.8, 1.1, 11.1, 1.2);
+        WeatherInfo weatherInfo = new WeatherInfo("1", 10.8,10.8, 1.1, 11.1, 1);
         weatherInfo.setStation(s);
-        WeatherInfo weatherInfo2 = new WeatherInfo("2", 10.8,10.8, 1.1, 11.1, 1.2);
+        WeatherInfo weatherInfo2 = new WeatherInfo("2", 10.8,10.8, 1.1, 11.1, 1);
         weatherInfo2.setStation(s);
-        WeatherInfo weatherInfo3 = new WeatherInfo("3", 10.8,10.8, 1.1, 11.1, 1.2);
+        WeatherInfo weatherInfo3 = new WeatherInfo("3", 10.8,10.8, 1.1, 11.1, 1);
         weatherInfo3.setStation(s);
-        WeatherInfo weatherInfo4 = new WeatherInfo("4", 10.8,10.8, 1.1, 11.1, 1.2);
+        WeatherInfo weatherInfo4 = new WeatherInfo("4", 10.8,10.8, 1.1, 11.1, 1);
         weatherInfo4.setStation(s);
 
         weatherInfoRepository.save(weatherInfo);

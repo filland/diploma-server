@@ -33,11 +33,11 @@ public class WeatherInfo {
     private Double windSpeed;
 
     @Column(nullable = false)
-    private Double windDirection;
+    private Integer windDirection;
 
     public WeatherInfo() {  }
 
-    public WeatherInfo(String dateTime, double temperature, double pressure, double humidity, double windSpeed, double windDirection) {
+    public WeatherInfo(String dateTime, double temperature, double pressure, double humidity, double windSpeed, int windDirection) {
 
         this.dateTime = dateTime;
         this.temperature = temperature;
@@ -88,11 +88,11 @@ public class WeatherInfo {
         this.windSpeed = windSpeed;
     }
 
-    public Double getWindDirection() {
+    public Integer getWindDirection() {
         return windDirection;
     }
 
-    public void setWindDirection(Double windDirection) {
+    public void setWindDirection(Integer windDirection) {
         this.windDirection = windDirection;
     }
 
