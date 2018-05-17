@@ -1,6 +1,7 @@
 package bntu.diploma.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 
@@ -25,8 +26,7 @@ public class Station {
     /**
      * The oblast where the station is located
      * */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch=FetchType.EAGER, optional=false)
     @JoinColumn(name = "oblastsId", nullable = false)
     private Oblast oblast;
 
@@ -56,12 +56,12 @@ public class Station {
 
     /**
      *
-     * Shows the level of the station's battery
+     * Shows the current level of the station's battery
      *
      * The param can equal the value from 1 to 100.
      *
      * */
-    private Integer batteryLevel;
+    private Integer currentBatteryLevel;
 
     public Station() {
     }
@@ -130,11 +130,11 @@ public class Station {
         this.lastInspection = lastInspection;
     }
 
-    public Integer getBatteryLevel() {
-        return batteryLevel;
+    public Integer getCurrentBatteryLevel() {
+        return currentBatteryLevel;
     }
 
-    public void setBatteryLevel(Integer batteryLevel) {
-        this.batteryLevel = batteryLevel;
+    public void setCurrentBatteryLevel(Integer currentBatteryLevel) {
+        this.currentBatteryLevel = currentBatteryLevel;
     }
 }

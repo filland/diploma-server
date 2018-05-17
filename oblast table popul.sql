@@ -1,33 +1,33 @@
 INSERT INTO oblast
 (`name`)
 VALUES
-('brest');
+('brestskaya');
 
 INSERT INTO oblast
 (`name`)
 VALUES
-('vit');
-
-
-INSERT INTO oblast
-(`name`)
-VALUES
-('gom');
+('vitebskaya');
 
 
 INSERT INTO oblast
 (`name`)
 VALUES
-('grod');
+('gomelskaya');
 
 
 INSERT INTO oblast
 (`name`)
 VALUES
-('minsk');
+('grodnenskaya');
+
 
 INSERT INTO oblast
 (`name`)
 VALUES
-('mog');
+('minskaya');
+
+INSERT INTO oblast
+(`name`)
+VALUES
+('mogilevskaya');
 

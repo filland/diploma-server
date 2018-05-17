@@ -4,14 +4,11 @@ import bntu.diploma.model.*;
 import bntu.diploma.repository.*;
 import bntu.diploma.utils.CipherUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
-
-import static bntu.diploma.utils.CipherUtils.decrypt;
 
 /**
  *
@@ -38,7 +35,7 @@ public class WeatherServerController {
     private TokenRepository tokenRepository;
 
 
-    private final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat ("ddMMyyyy HHmm");
+    private final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat ("dd-MM-yyyy HH:mm");
 
     /**
      * Storing formed JSON with all weather info
@@ -51,7 +48,7 @@ public class WeatherServerController {
      *
      * */
     @RequestMapping(value = "/weather", method = RequestMethod.GET)
-    public Map<String, List<Map<String, List<WeatherInfo>>>> getAllWeatherData(@RequestParam(value = "key") String clientsAppKey){
+    public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "key") String clientsAppKey){
 
         User user = userRepository.findByApiKey(clientsAppKey);
 
@@ -73,16 +70,18 @@ public class WeatherServerController {
 
                List <Station> stations = stationRepository.findByOblast(oblast);
 
-               List<Map<String, List<WeatherInfo>>> oblastsData = new ArrayList<>();
+               List<Map> oblastsData = new ArrayList<>();
 
-               Map<String, List<WeatherInfo>> m;
+               Map m;
 
                for (Station station: stations){
 
                    List<WeatherInfo> weatherInfos = weatherInfoRepository.findAllByStation(station);
 
                    m = new HashMap<>();
-                   m.put(station.getNearestTown()+"_"+station.getStationsId(), weatherInfos);
+                   m.put("station_id", station.getStationsId());
+                   m.put("town", station.getNearestTown());
+                   m.put("data", weatherInfos);
                    oblastsData.add(m);
                }
 
@@ -127,7 +126,7 @@ public class WeatherServerController {
                 weatherInfoRepository.save(weatherInfo);
 
                 // update the station's battery level
-                station.setBatteryLevel(Integer.valueOf(batteryLevel));
+                station.setCurrentBatteryLevel(Integer.valueOf(batteryLevel));
                 stationRepository.save(station);
 
             } catch (NumberFormatException e) {
@@ -181,6 +180,13 @@ public class WeatherServerController {
         }
 
         return null;
+    }
+
+
+    @RequestMapping(value = "/station", method = RequestMethod.GET)
+    public List<Station> getAllStationsInfo(@RequestParam(value = "key") String stationsKey){
+
+        return stationRepository.findAll();
     }
 
     @RequestMapping(value = "/add_station", method = RequestMethod.POST)
@@ -241,63 +247,5 @@ public class WeatherServerController {
         return "added";
     }
 
-    @RequestMapping(value = "/change", method = RequestMethod.PUT)
-    public String changeStationsInfo2(String stationId, Object updatedStation){
-        // TODO how to send a serialized object
-
-        Station station = (Station) updatedStation;
-
-        return "added";
-    }
-
-
-    @RequestMapping(value = "/check", method = RequestMethod.GET)
-    public String check(){
-
-        /*Oblast oblast=new Oblast();
-        oblast.setName("Gomelskaya");
-        oblastRepository.save(oblast);
-        Oblast oblast1=new Oblast();
-        oblast1.setName("Minskaya");
-        oblastRepository.save(oblast1);
-        Oblast oblast2=new Oblast();
-        oblast2.setName("VItebskaya");
-        oblastRepository.save(oblast2);*/
-
-
-        /*Station station = new Station();
-        Oblast ob = new Oblast();
-        ob.setOblastsId(1L);
-        station.setOblast(ob);
-        station.setStationLatitude(1.1);
-        station.setStationLongitude(1.1);
-        station.setNearestTown("minsk");
-        station.setStationUniqueKey("1234567890");
-        station.setInstallationDate("03041999");
-        station.setLastInspection("05052010");
-        stationRepository.save(station);*/
-
-        Station s = new Station();
-        s.setStationsId(2L);
-
-        WeatherInfo weatherInfo = new WeatherInfo("1", 10.8,10.8, 1.1, 11.1, 1);
-        weatherInfo.setStation(s);
-        WeatherInfo weatherInfo2 = new WeatherInfo("2", 10.8,10.8, 1.1, 11.1, 1);
-        weatherInfo2.setStation(s);
-        WeatherInfo weatherInfo3 = new WeatherInfo("3", 10.8,10.8, 1.1, 11.1, 1);
-        weatherInfo3.setStation(s);
-        WeatherInfo weatherInfo4 = new WeatherInfo("4", 10.8,10.8, 1.1, 11.1, 1);
-        weatherInfo4.setStation(s);
-
-        weatherInfoRepository.save(weatherInfo);
-        weatherInfoRepository.save(weatherInfo2);
-        weatherInfoRepository.save(weatherInfo3);
-        weatherInfoRepository.save(weatherInfo4);
-
-
-
-
-        return "done";
-    }
 
 }

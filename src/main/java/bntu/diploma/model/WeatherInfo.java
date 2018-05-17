@@ -1,6 +1,7 @@
 package bntu.diploma.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 
@@ -35,9 +36,12 @@ public class WeatherInfo {
     @Column(nullable = false)
     private Integer windDirection;
 
+    @Column(nullable = false)
+    private Integer batteryLevel;
+
     public WeatherInfo() {  }
 
-    public WeatherInfo(String dateTime, double temperature, double pressure, double humidity, double windSpeed, int windDirection) {
+    public WeatherInfo(String dateTime, double temperature, double pressure, double humidity, double windSpeed, int windDirection, int batteryLevel) {
 
         this.dateTime = dateTime;
         this.temperature = temperature;
@@ -45,6 +49,7 @@ public class WeatherInfo {
         this.humidity = humidity;
         this.windSpeed = windSpeed;
         this.windDirection = windDirection;
+        this.batteryLevel = batteryLevel;
     }
 
 
@@ -110,5 +115,13 @@ public class WeatherInfo {
 
     public void setStation(Station station) {
         this.station = station;
+    }
+
+    public Integer getBatteryLevel() {
+        return batteryLevel;
+    }
+
+    public void setBatteryLevel(Integer batteryLevel) {
+        this.batteryLevel = batteryLevel;
     }
 }
