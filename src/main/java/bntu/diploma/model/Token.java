@@ -52,7 +52,7 @@ public class Token {
         this.token = token;
     }
 
-    public Boolean getExpired() {
+    public Boolean isExpired() {
         return expired;
     }
 

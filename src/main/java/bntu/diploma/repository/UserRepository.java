@@ -17,4 +17,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByAccessLevel(Integer accessLevel);
 
     User findByApiKey(String apiKey);
+
+    User findByUserName(String userName);
 }

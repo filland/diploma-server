@@ -2,10 +2,17 @@ package bntu.diploma.controller;
 
 import bntu.diploma.model.*;
 import bntu.diploma.repository.*;
-import bntu.diploma.utils.CipherUtils;
+import bntu.diploma.utils.AdvancedEncryptionStandard;
+import bntu.diploma.utils.SecureTokenGenerator;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -48,53 +55,41 @@ public class WeatherServerController {
      *
      * */
     @RequestMapping(value = "/weather", method = RequestMethod.GET)
-    public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "key") String clientsAppKey){
+    public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "token") String sessionToken){
 
-        User user = userRepository.findByApiKey(clientsAppKey);
+        Token token = tokenRepository.findByToken(sessionToken);
 
-        if (user != null){
+        // if the token exists
+        if (token != null && !token.isExpired()){
 
-            System.out.println("if");
+                AllWeatherData a = new AllWeatherData();
 
-           /* if(allWeatherInfo == null){
+                for (Oblast oblast : oblastRepository.findAll()){
 
-                allWeatherInfo = new StringBuilder();
+                    List <Station> stations = stationRepository.findByOblast(oblast);
+                    List<Map> oblastsData = new ArrayList<>();
+                    Map m;
 
+                    for (Station station: stations){
+                        List<WeatherInfo> weatherInfos = weatherInfoRepository.findAllByStation(station);
 
+                        m = new HashMap<>();
+                        m.put("station_id", station.getStationsId());
+                        m.put("town", station.getNearestTown());
+                        m.put("data", weatherInfos);
+                        oblastsData.add(m);
+                    }
 
-            }*/
+                    a.addOblastsData(oblast.getName(), oblastsData);
+                }
 
-           AllWeatherData a = new AllWeatherData();
+                return a.getAllData();
 
-           for (Oblast oblast : oblastRepository.findAll()){
-
-               List <Station> stations = stationRepository.findByOblast(oblast);
-
-               List<Map> oblastsData = new ArrayList<>();
-
-               Map m;
-
-               for (Station station: stations){
-
-                   List<WeatherInfo> weatherInfos = weatherInfoRepository.findAllByStation(station);
-
-                   m = new HashMap<>();
-                   m.put("station_id", station.getStationsId());
-                   m.put("town", station.getNearestTown());
-                   m.put("data", weatherInfos);
-                   oblastsData.add(m);
-               }
-
-               a.addOblastsData(oblast.getName(), oblastsData);
-           }
-
-            return a.getAllData();
-
-        } else{
+        } else {
 
             System.out.println("else");
-
             return null;
+
         }
     }
 
@@ -142,17 +137,29 @@ public class WeatherServerController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login(@RequestParam(value = "key") String encryptedKey,
-                        @RequestParam(value = "id") String usersID){
+    @ResponseBody
+    public String login(@RequestParam(value = "id") Long usersID,
+                        @RequestBody byte[] encryptedKey){
 
-        Optional<User> optional = userRepository.findById(Long.valueOf(usersID));
+        Optional<User> optional = userRepository.findById(usersID);
         User user;
+
+        System.out.println("user id  - "+usersID);
 
         // if a user with such id was found
         if (optional.isPresent()){
             user = optional.get();
 
-            String decryptionResult = CipherUtils.decrypt(encryptedKey, null);
+            String decryptionResult = null;
+            try {
+                System.out.println("decrypt key - "+AdvancedEncryptionStandard.decrypt(encryptedKey, user.getEncryptionKey().getBytes()));
+                decryptionResult = AdvancedEncryptionStandard.decrypt(encryptedKey, user.getEncryptionKey().getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            String generatedToken;
 
             // if user's actual key matches the key gotten after encryption
             if (user.getApiKey().equals(decryptionResult)){
@@ -162,19 +169,25 @@ public class WeatherServerController {
                 usersToken.setLoginDateTime(DATE_FORMATTER.format(new Date()));
                 usersToken.setUser(user);
 
-                // TODO generate a token
-                usersToken.setToken(null);
+                generatedToken = SecureTokenGenerator.nextToken();
+
+                usersToken.setToken(generatedToken);
+
+                System.out.println("generated token - "+generatedToken);
+
 
                 try {
                     tokenRepository.save(usersToken);
                 } catch (Exception e) {
                     e.printStackTrace();
 
-                    return "token was not saved";
+                    return null;
                 }
 
 
-                return "success according to HTTP protocol";
+                System.out.println("almost return in LOGIN");
+
+                return "hello";
             }
 
         }
@@ -183,14 +196,67 @@ public class WeatherServerController {
     }
 
 
-    @RequestMapping(value = "/station", method = RequestMethod.GET)
-    public List<Station> getAllStationsInfo(@RequestParam(value = "key") String stationsKey){
 
-        return stationRepository.findAll();
+
+
+
+    @RequestMapping(value = "/hello", method = RequestMethod.POST)
+    @ResponseBody
+    public String hello(){
+
+        System.out.println("helli triggered");
+        return "hello";
+    }
+
+
+
+
+
+
+
+
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    @ResponseBody
+    public String logout(@RequestParam(value = "token") String sessionToken){
+
+        Token token = tokenRepository.findByToken(sessionToken);
+
+        System.out.println("logout triggered");
+
+        // if the token exists
+        if (token != null && !token.isExpired()){
+
+            token.setExpired(true);
+            token.setLogoutDateTime(DATE_FORMATTER.format(new Date()));
+            tokenRepository.save(token);
+
+
+            System.out.println("user is loggin out !");
+
+            return "done";
+        }
+
+        return "error";
+    }
+
+
+    @RequestMapping(value = "/station", method = RequestMethod.GET)
+    public List<Station> getAllStationsInfo(@RequestParam(value = "token") String sessionToken){
+
+        Token token = tokenRepository.findByToken(sessionToken);
+
+        // if the token exists
+        if (token != null && !token.isExpired()){
+
+            return stationRepository.findAll();
+
+        }
+
+        return null;
     }
 
     @RequestMapping(value = "/add_station", method = RequestMethod.POST)
-    public String addNewStation(@RequestParam(value = "token") String token,
+    public String addNewStation(@RequestParam(value = "token") String sessionToken,
                                 @RequestParam(value = "oblast")String oblast,
                                 @RequestParam(value = "installation") String installationDate,
                                 @RequestParam(value = "inspection") String lastInspectionDate,
@@ -198,7 +264,10 @@ public class WeatherServerController {
                                 @RequestParam(value = "longitude") String longitude,
                                 @RequestParam(value = "latitude") String latitude){
 
-        if(tokenRepository.findByToken(token) != null){
+        Token token = tokenRepository.findByToken(sessionToken);
+
+        // if the token exists
+        if (token != null && !token.isExpired()){
 
             try {
                 Station newStation = new Station();
@@ -209,7 +278,7 @@ public class WeatherServerController {
                 newStation.setOblast(oblast2);
 
                 // TODO generator of unique keys
-                newStation.setStationUniqueKey("key");
+                newStation.setStationUniqueKey(UUID.randomUUID().toString());
 
                 newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
                 newStation.setLastInspection(DATE_FORMATTER.format(LocalDateTime.parse(lastInspectionDate)));
@@ -238,13 +307,24 @@ public class WeatherServerController {
 
     }
 
-    @RequestMapping(value = "/change", method = RequestMethod.PUT)
-    public String changeStationsInfo(String stationId, Object updatedStation){
+    @RequestMapping(value = "/change_station", method = RequestMethod.PUT)
+    public String changeStationsInfo(@RequestParam(value = "token") String sessionToken, @RequestBody String updatedStationInfo){
+
         // TODO how to send a serialized object
 
-        Station station = (Station) updatedStation;
+        Token token = tokenRepository.findByToken(sessionToken);
 
-        return "added";
+        // if the token exists
+        if (token != null && !token.isExpired()){
+
+            JsonParser parser = new JsonParser();
+            JsonObject rootElement = parser.parse(updatedStationInfo).getAsJsonObject();
+
+            System.out.println("received json - "+rootElement);
+
+        }
+
+        return null;
     }
 
 
