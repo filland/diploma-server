@@ -4,6 +4,9 @@ import bntu.diploma.model.*;
 import bntu.diploma.repository.*;
 import bntu.diploma.utils.AdvancedEncryptionStandard;
 import bntu.diploma.utils.SecureTokenGenerator;
+//import com.google.gson.JsonObject;
+//import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -51,49 +55,9 @@ public class WeatherServerController {
 
     /**
      *
-     * Gets all collected information from all stations
+     * This request is used by weather stations to report on weather's conditions
      *
      * */
-    @RequestMapping(value = "/weather", method = RequestMethod.GET)
-    public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "token") String sessionToken){
-
-        Token token = tokenRepository.findByToken(sessionToken);
-
-        // if the token exists
-        if (token != null && !token.isExpired()){
-
-                AllWeatherData a = new AllWeatherData();
-
-                for (Oblast oblast : oblastRepository.findAll()){
-
-                    List <Station> stations = stationRepository.findByOblast(oblast);
-                    List<Map> oblastsData = new ArrayList<>();
-                    Map m;
-
-                    for (Station station: stations){
-                        List<WeatherInfo> weatherInfos = weatherInfoRepository.findAllByStation(station);
-
-                        m = new HashMap<>();
-                        m.put("station_id", station.getStationsId());
-                        m.put("town", station.getNearestTown());
-                        m.put("data", weatherInfos);
-                        oblastsData.add(m);
-                    }
-
-                    a.addOblastsData(oblast.getName(), oblastsData);
-                }
-
-                return a.getAllData();
-
-        } else {
-
-            System.out.println("else");
-            return null;
-
-        }
-    }
-
-
     @RequestMapping(value = "/report", method = RequestMethod.GET)
     public void weatherReport(@RequestParam(value = "key") String stationsKey,
                               @RequestParam(value = "temp") String temperature,
@@ -136,88 +100,90 @@ public class WeatherServerController {
         // TODO location of the station is found out by the KEY which is is meant for authentication as well
     }
 
+    /**
+     *
+     * This request is used to login a client application
+     *
+     * */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
-    public String login(@RequestParam(value = "id") Long usersID,
-                        @RequestBody byte[] encryptedKey){
+    public void loginUser(@RequestHeader(value = "id") Long usersID,
+                            @RequestBody byte[] encryptedKey,
+                            HttpServletResponse response) {
 
         Optional<User> optional = userRepository.findById(usersID);
         User user;
 
-        System.out.println("user id  - "+usersID);
+        System.out.println("user id - " + usersID);
 
-        // if a user with such id was found
-        if (optional.isPresent()){
+        if (optional.isPresent()) {
             user = optional.get();
 
             String decryptionResult = null;
             try {
-                System.out.println("decrypt key - "+AdvancedEncryptionStandard.decrypt(encryptedKey, user.getEncryptionKey().getBytes()));
+                System.out.println("decrypt key - " + AdvancedEncryptionStandard.decrypt(encryptedKey, user.getEncryptionKey().getBytes()));
                 decryptionResult = AdvancedEncryptionStandard.decrypt(encryptedKey, user.getEncryptionKey().getBytes());
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-
             String generatedToken;
 
             // if user's actual key matches the key gotten after encryption
-            if (user.getApiKey().equals(decryptionResult)){
+            if (user.getApiKey().equals(decryptionResult)) {
 
-                Token usersToken = new Token();
-                usersToken.setExpired(false);
-                usersToken.setLoginDateTime(DATE_FORMATTER.format(new Date()));
-                usersToken.setUser(user);
+                Token token = tokenRepository.findByUserAndExpired(user, false);
 
-                generatedToken = SecureTokenGenerator.nextToken();
+                System.out.println("checking if there is a token");
 
-                usersToken.setToken(generatedToken);
+                // user already has a token
+                if (token != null && !token.isExpired()) {
 
-                System.out.println("generated token - "+generatedToken);
+                    System.out.println("get token");
 
+                    response.setStatus(200);
+                    response.setHeader("key", token.getToken());
+                    // no token found
+                } else {
 
-                try {
-                    tokenRepository.save(usersToken);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    Token usersToken = new Token();
+                    usersToken.setExpired(false);
+                    usersToken.setLoginDateTime(DATE_FORMATTER.format(new Date()));
+                    usersToken.setUser(user);
 
-                    return null;
+                    generatedToken = SecureTokenGenerator.nextToken();
+
+                    usersToken.setToken(generatedToken);
+
+                    System.out.println("generated token - " + generatedToken);
+
+                    try {
+                        tokenRepository.save(usersToken);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    response.setHeader("key", generatedToken);
                 }
-
-
-                System.out.println("almost return in LOGIN");
-
-                return "hello";
+            } else{
+                response.setStatus(401);
             }
-
+        } else{
+            response.setStatus(401);
         }
 
-        return null;
+
     }
 
-
-
-
-
-
-    @RequestMapping(value = "/hello", method = RequestMethod.POST)
-    @ResponseBody
-    public String hello(){
-
-        System.out.println("helli triggered");
-        return "hello";
-    }
-
-
-
-
-
-
-
-
+    /**
+     *
+     * This request is used to logout a client application
+     *
+     * */
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     @ResponseBody
-    public String logout(@RequestParam(value = "token") String sessionToken){
+    public void logout(@RequestHeader(value = "token") String sessionToken,
+                       HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -230,17 +196,102 @@ public class WeatherServerController {
             token.setLogoutDateTime(DATE_FORMATTER.format(new Date()));
             tokenRepository.save(token);
 
+            response.setStatus(200);
+            System.out.println("user has logged out");
 
-            System.out.println("user is loggin out !");
+        } else {
 
-            return "done";
+            response.setStatus(400);
+            System.out.println("fail while logging out");
         }
 
-        return "error";
+    }
+
+    /**
+     *
+     * Gets all collected information from all stations by a client application
+     *
+     * */
+    @RequestMapping(value = "/all_weather", method = RequestMethod.GET)
+    public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "token") String sessionToken){
+
+
+        Token token = tokenRepository.findByToken(sessionToken);
+
+        System.out.println("A user wants to @getAllWeatherData");
+
+        // if the token exists
+        if (token != null && !token.isExpired()){
+
+            System.out.println("User with id -"+token.getUser().getId()+" was allowed to getAllWeatherData");
+
+            AllWeatherData a = new AllWeatherData();
+
+            for (Oblast oblast : oblastRepository.findAll()){
+
+                List <Station> stations = stationRepository.findByOblast(oblast);
+                List<Map> oblastsData = new ArrayList<>();
+                Map m;
+
+                for (Station station: stations){
+                    List<WeatherInfo> weatherInfos = weatherInfoRepository.findAllByStation(station);
+
+                    m = new HashMap<>();
+                    m.put("station_id", station.getStationsId());
+                    m.put("town", station.getNearestTown());
+                    m.put("data", weatherInfos);
+                    oblastsData.add(m);
+                }
+
+                a.addOblastsData(oblast.getName(), oblastsData);
+            }
+
+            return a.getAllData();
+
+        } else {
+
+            System.out.println("else");
+            return null;
+
+        }
     }
 
 
-    @RequestMapping(value = "/station", method = RequestMethod.GET)
+    /**
+     *
+     * Gets all collected information on one station by a client application
+     *
+     * */
+    @RequestMapping(value = "/all_one_station", method = RequestMethod.GET)
+    public List<WeatherInfo> getAllWeatherDataOfOneStation(@RequestParam(value = "token") String sessionToken,
+                                                       @RequestParam(value = "id") long stationsID){
+
+        Token token = tokenRepository.findByToken(sessionToken);
+
+        System.out.println("A user wants to @getAllWeatherDataOfOneStation");
+
+        // if the token exists
+        if (token != null && !token.isExpired()){
+
+            System.out.println("User with id -"+token.getUser().getId()+" was allowed to getAllWeatherDataOfOneStation");
+
+            Station station = new Station();
+            station.setStationsId(stationsID);
+
+            return weatherInfoRepository.findAllByStation(station);
+
+        }
+
+        return  null;
+    }
+
+
+    /**
+     *
+     * Gets info about all stations
+     *
+     * */
+    @RequestMapping(value = "/all_stations", method = RequestMethod.GET)
     public List<Station> getAllStationsInfo(@RequestParam(value = "token") String sessionToken){
 
         Token token = tokenRepository.findByToken(sessionToken);
@@ -255,14 +306,20 @@ public class WeatherServerController {
         return null;
     }
 
+    /**
+     *
+     * Used to add a new station
+     *
+     * */
     @RequestMapping(value = "/add_station", method = RequestMethod.POST)
-    public String addNewStation(@RequestParam(value = "token") String sessionToken,
+    public void addNewStation(@RequestParam(value = "token") String sessionToken,
                                 @RequestParam(value = "oblast")String oblast,
                                 @RequestParam(value = "installation") String installationDate,
                                 @RequestParam(value = "inspection") String lastInspectionDate,
                                 @RequestParam(value = "n_town") String nearestTown,
                                 @RequestParam(value = "longitude") String longitude,
-                                @RequestParam(value = "latitude") String latitude){
+                                @RequestParam(value = "latitude") String latitude,
+                              HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -277,7 +334,6 @@ public class WeatherServerController {
 
                 newStation.setOblast(oblast2);
 
-                // TODO generator of unique keys
                 newStation.setStationUniqueKey(UUID.randomUUID().toString());
 
                 newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
@@ -288,43 +344,55 @@ public class WeatherServerController {
 
                 stationRepository.save(newStation);
 
-                // TODO change
-                return "return a message which complies HTTP " +
-                        "protocol that creation was done successfully";
+                response.setStatus(200);
 
             } catch (Exception e) {
 
                 e.printStackTrace();
-
-                return null;
+                response.setStatus(401);
             }
 
         } else {
-
-
-            return null;
+            response.setStatus(401);
         }
 
     }
 
     @RequestMapping(value = "/change_station", method = RequestMethod.PUT)
-    public String changeStationsInfo(@RequestParam(value = "token") String sessionToken, @RequestBody String updatedStationInfo){
-
-        // TODO how to send a serialized object
+    public void changeStationsInfo(@RequestHeader(value = "token") String sessionToken,
+                                     @RequestHeader(value = "station_id") Long stationId,
+                                     @RequestBody String updatedStationInfo,
+                                   HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
 
         // if the token exists
         if (token != null && !token.isExpired()){
 
-            JsonParser parser = new JsonParser();
-            JsonObject rootElement = parser.parse(updatedStationInfo).getAsJsonObject();
+            System.out.println("received json - "+updatedStationInfo);
 
-            System.out.println("received json - "+rootElement);
+            Optional<Station> station = stationRepository.findById(stationId);
 
+            if (station.isPresent()){
+
+                //JsonObject rootElement = new JsonParser().parse(updatedStationInfo).getAsJsonObject();
+
+                // deserialize json into Station
+                Station updatedStation = new Gson().fromJson(updatedStationInfo, Station.class);
+                updatedStation.setStationsId(station.get().getStationsId());
+                updatedStation.setOblast(station.get().getOblast());
+                updatedStation.setStationUniqueKey(station.get().getStationUniqueKey());
+
+
+                stationRepository.save(updatedStation);
+
+                response.setStatus(200);
+            }
+
+        } else {
+            response.setStatus(401);
         }
 
-        return null;
     }
 
 

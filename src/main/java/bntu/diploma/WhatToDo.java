@@ -8,19 +8,17 @@ public class WhatToDo {
      *
      * Agenda: 3. method in Controller  for adding new station
      *
-     *
-     *
-     * 4. method in Controller for editing station's info ?
      * 7. logger
      * 8. Several controllers ?
-     * 9. authentication class for checking keys (there is a special interface of abs class)
-     * 12. AES - BullyWiiPlaza's answer -  https://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
-     * 14. Is a user want to login check is his/her session is not expired her first and if yes then generate a new token
-     * 15. LOGIN/ LOGOUT do not response bodies FUCKKKKKK
-     *
+     * 14. Is a user want to loginUser check is his/her session is not expired her first and if yes then generate a new token
+     * 16. Make tokens expired after a period of AFK time
      *
      *
      * DONE
+     * 17. Rename API resource paths !!! (e.g. 'station' -> 'all_stations')
+     * 15. LOGIN/ LOGOUT do not response bodies FUCKKKKKK
+     * 4. method in Controller for editing station's info ?
+     * 12. AES - BullyWiiPlaza's answer -  https://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
      * 11. Add the 'station_id' field to the json response
      * 6. How to generate keys ?
      * 10. Implement any type of security !
@@ -31,7 +29,8 @@ public class WhatToDo {
      *
      *
      * Weird:
-     * 13. How to find out client's IP ? THis is necessary for securing a session after AES login
+     * 9. authentication class for checking keys (there is a special interface of abs class)
+     * 13. How to find out client's IP ? THis is necessary for securing a session after AES loginUser
      *
      * */
     public class WhatToDo2{}
