@@ -141,11 +141,11 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
+'asdfaf',
+'ladsafsa',
+'asfdsadf',
 0.1,
 0.1,
-'uniqueafasfdfdsa',
-'6');
+'asdfasfsadf',
+'5');
 

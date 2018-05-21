@@ -312,13 +312,8 @@ public class WeatherServerController {
      *
      * */
     @RequestMapping(value = "/add_station", method = RequestMethod.POST)
-    public void addNewStation(@RequestParam(value = "token") String sessionToken,
-                                @RequestParam(value = "oblast")String oblast,
-                                @RequestParam(value = "installation") String installationDate,
-                                @RequestParam(value = "inspection") String lastInspectionDate,
-                                @RequestParam(value = "n_town") String nearestTown,
-                                @RequestParam(value = "longitude") String longitude,
-                                @RequestParam(value = "latitude") String latitude,
+    public void addNewStation(@RequestHeader(value = "token") String sessionToken,
+                              @RequestBody String newStationAsJson,
                               HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
@@ -327,20 +322,18 @@ public class WeatherServerController {
         if (token != null && !token.isExpired()){
 
             try {
-                Station newStation = new Station();
 
-                Oblast oblast2 = new Oblast();
-                oblast2.setOblastsId(Long.valueOf(oblast));
+                JsonObject asJsonObject = new JsonParser().parse(newStationAsJson).getAsJsonObject();
 
-                newStation.setOblast(oblast2);
-
+                Station newStation = new Gson().fromJson(newStationAsJson, Station.class);
+                newStation.setOblast(oblastRepository.getOne(Long.valueOf(asJsonObject.get("oblast").toString())));
                 newStation.setStationUniqueKey(UUID.randomUUID().toString());
 
-                newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
-                newStation.setLastInspection(DATE_FORMATTER.format(LocalDateTime.parse(lastInspectionDate)));
-                newStation.setNearestTown(nearestTown);
-                newStation.setStationLongitude(Double.valueOf(longitude));
-                newStation.setStationLatitude(Double.valueOf(latitude));
+//                newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
+//                newStation.setLastInspection(DATE_FORMATTER.format(LocalDateTime.parse(lastInspectionDate)));
+//                newStation.setNearestTown(nearestTown);
+//                newStation.setStationLongitude(Double.valueOf(longitude));
+//                newStation.setStationLatitude(Double.valueOf(latitude));
 
                 stationRepository.save(newStation);
 
@@ -393,6 +386,13 @@ public class WeatherServerController {
             response.setStatus(401);
         }
 
+    }
+
+
+    @RequestMapping(value = "/available", method = RequestMethod.GET)
+    public void serverIsAvailable(HttpServletResponse response){
+
+        response.setStatus(200);
     }
 
 
