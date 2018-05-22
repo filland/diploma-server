@@ -65,7 +65,8 @@ public class WeatherServerController {
                               @RequestParam(value = "pres") String pressure,
                               @RequestParam(value = "wspeed") String windSpeed,
                               @RequestParam(value = "wdir") String windDirection,
-                              @RequestParam(value = "battery") String batteryLevel){
+                              @RequestParam(value = "battery") Integer batteryLevel,
+                              HttpServletResponse response){
 
         Station station = stationRepository.findByStationUniqueKey(stationsKey);
 
@@ -80,22 +81,29 @@ public class WeatherServerController {
                 weatherInfo.setPressure(Double.valueOf(pressure));
                 weatherInfo.setWindSpeed(Double.valueOf(windSpeed));
                 weatherInfo.setWindDirection(Integer.valueOf(windDirection));
+                weatherInfo.setBatteryLevel(batteryLevel);
 
                 // save received data to the database
                 weatherInfoRepository.save(weatherInfo);
 
                 // update the station's battery level
-                station.setCurrentBatteryLevel(Integer.valueOf(batteryLevel));
+                station.setCurrentBatteryLevel(batteryLevel);
                 stationRepository.save(station);
+
 
             } catch (NumberFormatException e) {
 
                 e.printStackTrace();
-
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
+
+        } else {
+
+            response.setStatus(HttpStatus.NOT_FOUND.value());
 
         }
 
+        response.setStatus(HttpStatus.OK.value());
 
         // TODO location of the station is found out by the KEY which is is meant for authentication as well
     }
@@ -141,7 +149,7 @@ public class WeatherServerController {
 
                     System.out.println("get token");
 
-                    response.setStatus(200);
+                    response.setStatus(HttpStatus.OK.value());
                     response.setHeader("key", token.getToken());
                     // no token found
                 } else {
@@ -166,10 +174,10 @@ public class WeatherServerController {
                     response.setHeader("key", generatedToken);
                 }
             } else{
-                response.setStatus(401);
+                response.setStatus(HttpStatus.NOT_FOUND.value());
             }
         } else{
-            response.setStatus(401);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
 
 
@@ -196,12 +204,12 @@ public class WeatherServerController {
             token.setLogoutDateTime(DATE_FORMATTER.format(new Date()));
             tokenRepository.save(token);
 
-            response.setStatus(200);
+            response.setStatus(HttpStatus.OK.value());
             System.out.println("user has logged out");
 
         } else {
 
-            response.setStatus(400);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
             System.out.println("fail while logging out");
         }
 
@@ -337,16 +345,16 @@ public class WeatherServerController {
 
                 stationRepository.save(newStation);
 
-                response.setStatus(200);
+                response.setStatus(HttpStatus.OK.value());
 
             } catch (Exception e) {
 
                 e.printStackTrace();
-                response.setStatus(401);
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
             }
 
         } else {
-            response.setStatus(401);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
 
     }
@@ -379,11 +387,11 @@ public class WeatherServerController {
 
                 stationRepository.save(updatedStation);
 
-                response.setStatus(200);
+                response.setStatus(HttpStatus.OK.value());
             }
 
         } else {
-            response.setStatus(401);
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
         }
 
     }
@@ -392,7 +400,7 @@ public class WeatherServerController {
     @RequestMapping(value = "/available", method = RequestMethod.GET)
     public void serverIsAvailable(HttpServletResponse response){
 
-        response.setStatus(200);
+        response.setStatus(HttpStatus.OK.value());
     }
 
 

@@ -252,14 +252,14 @@ INSERT INTO weather_info
 `stations_id`,battery_level)
 VALUES
 (
-'14-05-2018 15:00',
-50.1,
-760.5,
+'14-05-2018 15:50',
+150.1,
+1760.5,
 28.1,
 260.1,
 33.2,
 7,
-50);
+20);
 
 INSERT INTO weather_info
 (
@@ -289,15 +289,16 @@ INSERT INTO weather_info
 `temperature`,
 `wind_direction`,
 `wind_speed`,
-`stations_id`,battery_level)
+`stations_id`,
+battery_level)
 VALUES
 (
-'14-05-2018 17:00',
-50.1,
-760.5,
-28.1,
-260.1,
-33.2,
+'22-05-2018 19:55',
+10.1,
+105.5,
+105.1,
+710.1,
+7.2,
 5,
-50);
+77);
 
