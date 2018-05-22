@@ -9,12 +9,12 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'unique ke213fdsafdsaf',
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Brest',
+44.1,
+44.1,
+'unique1',
 '1');
 
 INSERT INTO station
@@ -28,12 +28,12 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'unique keyafasfdf13123',
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Vitebsk',
+44.1,
+44.1,
+'unique2',
 '2');
 
 INSERT INTO station
@@ -47,49 +47,12 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'unique key1afasf31321',
-'2');
-
-INSERT INTO station
-(
-`installation_date`,
-`last_inspection`,
-`nearest_town`,
-`station_latitude`,
-`station_longitude`,
-`station_unique_key`,
-`oblasts_id`)
-VALUES
-(
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'uniquekefsfsafds3',
-'3');
-INSERT INTO station
-(
-`installation_date`,
-`last_inspection`,
-`nearest_town`,
-`station_latitude`,
-`station_longitude`,
-`station_unique_key`,
-`oblasts_id`)
-VALUES
-(
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'uniquekey323233233',
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Gomel',
+44.1,
+44.1,
+'unique3',
 '3');
 
 INSERT INTO station
@@ -103,14 +66,13 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'uniquekey333323233',
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Grodno',
+33.1,
+33.1,
+'unique4',
 '4');
-
 INSERT INTO station
 (
 `installation_date`,
@@ -122,12 +84,12 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'dateTime',
-'last insp',
-'nearest',
-0.1,
-0.1,
-'uniquekeydsfsafdsa',
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Minsk',
+66.1,
+66.1,
+'unique5',
 '5');
 
 INSERT INTO station
@@ -141,11 +103,49 @@ INSERT INTO station
 `oblasts_id`)
 VALUES
 (
-'asdfaf',
-'ladsafsa',
-'asfdsadf',
-0.1,
-0.1,
-'asdfasfsadf',
-'5');
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Mogilev',
+22.1,
+22.1,
+'unique6',
+'6');
+
+INSERT INTO station
+(
+`installation_date`,
+`last_inspection`,
+`nearest_town`,
+`station_latitude`,
+`station_longitude`,
+`station_unique_key`,
+`oblasts_id`)
+VALUES
+(
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Bobruysk',
+51,
+51,
+'unique7',
+'6');
+
+INSERT INTO station
+(
+`installation_date`,
+`last_inspection`,
+`nearest_town`,
+`station_latitude`,
+`station_longitude`,
+`station_unique_key`,
+`oblasts_id`)
+VALUES
+(
+'2018-05-22 23:25',
+'2018-05-22 23:25',
+'Baranovichi',
+33.1,
+33.1,
+'unique8',
+'1');
 
