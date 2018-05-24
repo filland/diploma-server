@@ -12,7 +12,7 @@ public class WhatToDo {
      * 8. Several controllers ?
      * 14. Is a user want to loginUser check is his/her session is not expired her first and if yes then generate a new token
      * 16. Make tokens expired after a period of AFK time
-     *
+     * 18. Rename params to keep consistence
      *
      * DONE
      * 17. Rename API resource paths !!! (e.g. 'station' -> 'all_stations')

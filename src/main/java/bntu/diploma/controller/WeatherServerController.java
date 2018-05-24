@@ -4,21 +4,15 @@ import bntu.diploma.model.*;
 import bntu.diploma.repository.*;
 import bntu.diploma.utils.AdvancedEncryptionStandard;
 import bntu.diploma.utils.SecureTokenGenerator;
-//import com.google.gson.JsonObject;
-//import com.google.gson.JsonParser;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -116,8 +110,8 @@ public class WeatherServerController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     @ResponseBody
     public void loginUser(@RequestHeader(value = "id") Long usersID,
-                            @RequestBody byte[] encryptedKey,
-                            HttpServletResponse response) {
+                          @RequestBody byte[] encryptedKey,
+                          HttpServletResponse response) {
 
         Optional<User> optional = userRepository.findById(usersID);
         User user;
@@ -272,7 +266,8 @@ public class WeatherServerController {
      * */
     @RequestMapping(value = "/all_one_station", method = RequestMethod.GET)
     public List<WeatherInfo> getAllWeatherDataOfOneStation(@RequestParam(value = "token") String sessionToken,
-                                                       @RequestParam(value = "id") long stationsID){
+                                                           @RequestParam(value = "id") long stationsID,
+                                                           HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -286,11 +281,15 @@ public class WeatherServerController {
             Station station = new Station();
             station.setStationsId(stationsID);
 
+
+            response.setStatus(HttpStatus.OK.value());
             return weatherInfoRepository.findAllByStation(station);
 
-        }
+        } else {
 
-        return  null;
+            response.setStatus(HttpStatus.FORBIDDEN.value());
+            return null;
+        }
     }
 
 
@@ -300,17 +299,19 @@ public class WeatherServerController {
      *
      * */
     @RequestMapping(value = "/all_stations", method = RequestMethod.GET)
-    public List<Station> getAllStationsInfo(@RequestParam(value = "token") String sessionToken){
+    public List<Station> getAllStationsInfo(@RequestParam(value = "token") String sessionToken,
+                                            HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
 
         // if the token exists
         if (token != null && !token.isExpired()){
 
+            response.setStatus(HttpStatus.OK.value());
             return stationRepository.findAll();
 
-        }
-
+        } else
+            response.setStatus(HttpStatus.FORBIDDEN.value());
         return null;
     }
 
@@ -350,7 +351,7 @@ public class WeatherServerController {
             } catch (Exception e) {
 
                 e.printStackTrace();
-                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
 
         } else {
@@ -361,8 +362,8 @@ public class WeatherServerController {
 
     @RequestMapping(value = "/change_station", method = RequestMethod.PUT)
     public void changeStationsInfo(@RequestHeader(value = "token") String sessionToken,
-                                     @RequestHeader(value = "station_id") Long stationId,
-                                     @RequestBody String updatedStationInfo,
+                                   @RequestHeader(value = "station_id") Long stationId,
+                                   @RequestBody String updatedStationInfo,
                                    HttpServletResponse response){
 
         Token token = tokenRepository.findByToken(sessionToken);
@@ -372,22 +373,26 @@ public class WeatherServerController {
 
             System.out.println("received json - "+updatedStationInfo);
 
-            Optional<Station> station = stationRepository.findById(stationId);
+            try {
+                Optional<Station> station = stationRepository.findById(stationId);
 
-            if (station.isPresent()){
-
-                //JsonObject rootElement = new JsonParser().parse(updatedStationInfo).getAsJsonObject();
-
-                // deserialize json into Station
-                Station updatedStation = new Gson().fromJson(updatedStationInfo, Station.class);
-                updatedStation.setStationsId(station.get().getStationsId());
-                updatedStation.setOblast(station.get().getOblast());
-                updatedStation.setStationUniqueKey(station.get().getStationUniqueKey());
+                if (station.isPresent()){
 
 
-                stationRepository.save(updatedStation);
+                    // deserialize json into Station
+                    Station updatedStation = new Gson().fromJson(updatedStationInfo, Station.class);
+                    updatedStation.setStationsId(station.get().getStationsId());
+                    updatedStation.setOblast(station.get().getOblast());
+                    updatedStation.setStationUniqueKey(station.get().getStationUniqueKey());
 
-                response.setStatus(HttpStatus.OK.value());
+
+                    stationRepository.save(updatedStation);
+
+                    response.setStatus(HttpStatus.OK.value());
+                }
+            } catch (Exception e) {
+                response.setStatus(HttpStatus.BAD_REQUEST.value());
+                e.printStackTrace();
             }
 
         } else {
