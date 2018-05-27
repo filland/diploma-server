@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
@@ -23,6 +23,6 @@ public class WeatherInfoRepositoryTest {
     @Test
     public void findByUserName() {
         Optional<WeatherInfo> weatherInfo = weatherInfoRepository.findById(2L);
-        assertNotNull(weatherInfo.get());
+        assertTrue(weatherInfo.isPresent());
     }
 }

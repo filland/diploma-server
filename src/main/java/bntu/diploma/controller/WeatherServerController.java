@@ -39,7 +39,6 @@ public class WeatherServerController {
     @Autowired
     private TokenRepository tokenRepository;
 
-
     private final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat ("dd-MM-yyyy HH:mm");
 
     /**
@@ -332,17 +331,13 @@ public class WeatherServerController {
 
             try {
 
+                System.err.println("Adding new station\n\n\n\n\n");
+                System.out.println(newStationAsJson);
+
                 JsonObject asJsonObject = new JsonParser().parse(newStationAsJson).getAsJsonObject();
 
                 Station newStation = new Gson().fromJson(newStationAsJson, Station.class);
-                newStation.setOblast(oblastRepository.getOne(Long.valueOf(asJsonObject.get("oblast").toString())));
-                newStation.setStationUniqueKey(UUID.randomUUID().toString());
-
-//                newStation.setInstallationDate(DATE_FORMATTER.format(LocalDateTime.parse(installationDate)));
-//                newStation.setLastInspection(DATE_FORMATTER.format(LocalDateTime.parse(lastInspectionDate)));
-//                newStation.setNearestTown(nearestTown);
-//                newStation.setStationLongitude(Double.valueOf(longitude));
-//                newStation.setStationLatitude(Double.valueOf(latitude));
+                newStation.setOblast(oblastRepository.getOne(Long.valueOf(asJsonObject.get("oblastId").toString())));
 
                 stationRepository.save(newStation);
 

@@ -1,56 +1,50 @@
 package bntu.diploma.controller;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+
 public class WeatherServerControllerTest {
 
-    @Test
-    public void reportPositiveTest() {
-        String query = "http://localhost:8080/report?key=unique ke213fdsafdsaf&temp=30.1&hum=40&pres=740.0&wspeed=10.0&wdir=260&battery=300";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> response = restTemplate.getForEntity(query, Object.class);
-        int actualStatusCode = response.getStatusCodeValue();
-        assertEquals(actualStatusCode, 200);
+    private MockMvc mockMvc;
+    @Autowired
+    private WebApplicationContext wac;
+
+    @Before
+    public void setUp() throws Exception {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
 
     @Test
-    public void reportGetResourceException400Test() {
+    public void reportPositiveTest() throws Exception {
+
+        String query = "/report?key=unique4&temp=30.1&hum=40&pres=740.0&wspeed=10.0&wdir=260&battery=300";
+        mockMvc.perform(get(query)).
+                andExpect(status().isOk());
+    }
+
+    @Test
+    public void reportGetResourceException400Test() throws Exception {
+
         String q = "http://localhost:8080/report";
-        RestTemplate restTemplate = new RestTemplate();
-        try {
-            restTemplate.getForEntity(q, Object.class);
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-        } catch (Exception e) {
-            fail("this isn't the expected exception: " + e.getMessage());
-        }
-
+        mockMvc.perform(get(q)).andExpect(status().isBadRequest());
     }
 
     @Test
-    public void reportGetResourceException400EmptyBatteryParameterTest() {
-        try {
-            String query = "http://localhost:8080/report?key=unique ke213fdsafdsaf&temp=30.1&hum=40&pres=740.0&wspeed=10.0&wdir=260&battery=";
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity response = restTemplate.getForEntity(query, Object.class);
-            //fail("this isn't the expected case");
-        } catch (HttpClientErrorException e) {
-            assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-        } catch (Exception e) {
-            fail("this isn't the expected exception: " + e.getMessage());
-        }
-
+    public void reportGetResourceException400EmptyWindDirectionParameterTest() throws Exception {
+        String query = "http://localhost:8080/report?key=unique ke213fdsafdsaf&temp=30.1&hum=40&pres=740.0&wspeed=10.0";
+        mockMvc.perform(get(query)).andExpect(status().isBadRequest());
     }
 }

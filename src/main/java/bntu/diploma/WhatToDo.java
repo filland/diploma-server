@@ -10,13 +10,13 @@ public class WhatToDo {
      *
      * 7. logger
      * 8. Several controllers ?
-     * 14. Is a user want to loginUser check is his/her session is not expired her first and if yes then generate a new token
      * 16. Make tokens expired after a period of AFK time
      * 18. Rename params to keep consistence
      *
      * DONE
+     * 14. Is a user want to loginUser check is his/her session is not expired her first and if yes then generate a new token
      * 17. Rename API resource paths !!! (e.g. 'station' -> 'all_stations')
-     * 15. LOGIN/ LOGOUT do not response bodies FUCKKKKKK
+     * 15. LOGIN/ LOGOUT do not response bodies FUCKKKKKK - resolved by using headers
      * 4. method in Controller for editing station's info ?
      * 12. AES - BullyWiiPlaza's answer -  https://stackoverflow.com/questions/15554296/simple-java-aes-encrypt-decrypt-example
      * 11. Add the 'station_id' field to the json response

@@ -6,7 +6,7 @@ password,
 user_name)
 values
 (2,
-'666',
+'6666666666',
 'asasasasasasasas',
 'password2',
 'username5');

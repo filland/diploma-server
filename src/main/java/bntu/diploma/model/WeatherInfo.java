@@ -36,7 +36,6 @@ public class WeatherInfo {
     @Column(nullable = false)
     private Integer windDirection;
 
-    @Column(nullable = false)
     private Integer batteryLevel;
 
     public WeatherInfo() {  }
