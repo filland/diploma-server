@@ -1,7 +1,6 @@
 package bntu.diploma.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 
@@ -10,7 +9,7 @@ public class WeatherInfo {
 
     @Id
     @JsonIgnore
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long weatherInfoId;
 
     @ManyToOne
@@ -38,7 +37,8 @@ public class WeatherInfo {
 
     private Integer batteryLevel;
 
-    public WeatherInfo() {  }
+    public WeatherInfo() {
+    }
 
     public WeatherInfo(String dateTime, double temperature, double pressure, double humidity, double windSpeed, int windDirection, int batteryLevel) {
 

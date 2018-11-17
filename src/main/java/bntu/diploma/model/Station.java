@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class Station {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long stationsId;
 
     @JsonIgnore
@@ -24,8 +24,8 @@ public class Station {
 
     /**
      * The oblast where the station is located
-     * */
-    @ManyToOne(fetch=FetchType.EAGER, optional=false)
+     */
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "oblastsId", nullable = false)
     private Oblast oblast;
 
@@ -34,7 +34,7 @@ public class Station {
 
     /**
      * Coordinates of the station
-     * */
+     */
     @Column(nullable = false)
     private Double stationLongitude;
 
@@ -43,35 +43,33 @@ public class Station {
 
     /**
      * The date when the station was set up
-     * */
+     */
     @Column(nullable = false)
     private String installationDate;
 
     /**
      * The date when the station was inspected last time
-     * */
+     */
     @Column(nullable = false)
     private String lastInspection;
 
     /**
-     *
      * Shows the current level of the station's battery
-     *
+     * <p>
      * The param can equal the value from 1 to 100.
-     *
-     * */
+     */
     private Integer currentBatteryLevel;
 
 
     /**
      * Used to place a representation of the station as a dot on a map
-     * */
+     */
     private Double coordinateXOnInteractiveMap;
 
 
     /**
      * Used to place a representation of the station as a dot on a map
-     * */
+     */
     private Double coordinateYOnInteractiveMap;
 
     public Station() {

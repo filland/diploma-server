@@ -10,7 +10,7 @@ public class User {
 
     @Id
     @JsonIgnore
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @JsonIgnore
@@ -31,14 +31,15 @@ public class User {
 
     /**
      * Indicates what access is allowed for the user
-     *
+     * <p>
      * If accessLevel equals 1 the user has an admin level access
      * If accessLevel equals 2 the user has an user level access
-     * */
+     */
     @Column(nullable = false)
     private Integer accessLevel;
 
-    public User() { }
+    public User() {
+    }
 
     public User(String userName, String password, String apiKey, Integer accessLevel) {
         this.userName = userName;

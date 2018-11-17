@@ -7,14 +7,12 @@ public class AdvancedEncryptionStandard {
 
     private static final String ALGORITHM = "AES";
 
-
     /**
      * Encrypts the given plain text
      *
      * @param plainText The plain text to encrypt
-     *
-     * @param key is the key for encrypting which is
-     * being owned by both the client and the server
+     * @param key       is the key for encrypting which is
+     *                  being owned by both the client and the server
      */
     public static byte[] encrypt(byte[] plainText, byte[] key) throws Exception {
         SecretKeySpec secretKey = new SecretKeySpec(key, ALGORITHM);

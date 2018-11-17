@@ -4,10 +4,8 @@ import java.security.SecureRandom;
 
 
 /**
- *
  * This class is used for generating session tokens
- *
- * */
+ */
 public class SecureTokenGenerator {
 
     public static final String CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

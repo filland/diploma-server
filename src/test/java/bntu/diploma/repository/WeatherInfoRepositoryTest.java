@@ -22,7 +22,7 @@ public class WeatherInfoRepositoryTest {
 
     @Test
     public void findByUserName() {
-        Optional<WeatherInfo> weatherInfo = weatherInfoRepository.findById(2L);
+        Optional<WeatherInfo> weatherInfo = weatherInfoRepository.findById(1L);
         assertTrue(weatherInfo.isPresent());
     }
 }

@@ -6,7 +6,7 @@ import javax.persistence.*;
 public class Token {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tokenId;
 
     // many to one by user's id

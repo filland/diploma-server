@@ -1,7 +1,5 @@
 package bntu.diploma.model;
 
-import bntu.diploma.model.WeatherInfo;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,11 +7,10 @@ import java.util.Map;
 public class AllWeatherData {
 
     /**
-     *  the key - name of the oblast, the value is a
-     *  list of maps with stations where the key is the name + id of the stations
-     *  the value is a list of weather info
-     *
-     * */
+     * the key - name of the oblast, the value is a
+     * list of maps with stations where the key is the name + id of the stations
+     * the value is a list of weather info
+     */
     private Map<String, List<Map>> allData;
 
     public AllWeatherData() {
