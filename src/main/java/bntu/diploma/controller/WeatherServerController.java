@@ -1,6 +1,6 @@
 package bntu.diploma.controller;
 
-import bntu.diploma.model.*;
+import bntu.diploma.domain.*;
 import bntu.diploma.repository.*;
 import bntu.diploma.utils.AdvancedEncryptionStandard;
 import bntu.diploma.utils.SecureTokenGenerator;
@@ -62,7 +62,7 @@ public class WeatherServerController {
                               @RequestParam(value = "battery") Integer batteryLevel,
                               HttpServletResponse response) {
 
-        logger.info("====> Station with key=" + stationsKey + "reporting");
+        logger.info("====> Station with key = " + stationsKey + "reporting");
 
         Station station = stationRepository.findByStationUniqueKey(stationsKey);
 
@@ -118,7 +118,7 @@ public class WeatherServerController {
                           @RequestBody byte[] encryptedKey,
                           HttpServletResponse response) {
 
-        logger.info("====> user with id =" + usersID + " trying to log in");
+        logger.info("====> user with id = " + usersID + " trying to log in");
 
         Optional<User> optional = userRepository.findById(usersID);
         User user;
@@ -150,7 +150,7 @@ public class WeatherServerController {
             // if user's actual key matches the key gotten after encryption
             if (user.getApiKey().equals(decryptionResult)) {
 
-                logger.info("decrypted key equals the origin key");
+                logger.info("Decrypted key equals the original key");
 
                 Token token = tokenRepository.findByUserAndExpired(user, false);
 
@@ -161,14 +161,14 @@ public class WeatherServerController {
 
                     response.setStatus(HttpStatus.OK.value());
 
-                    logger.info("Return the existing token");
+                    logger.info("Return the existing token = " + token.getToken());
 
                     response.setHeader("key", token.getToken());
 
                     // no token found -> generate new token
                 } else {
 
-                    logger.info("Generating new token for user id="+usersID);
+                    logger.info("Generating new token for user id = " + usersID);
 
                     Token usersToken = new Token();
                     usersToken.setExpired(false);
@@ -184,7 +184,7 @@ public class WeatherServerController {
                     response.setHeader("key", generatedToken);
                     response.setStatus(HttpStatus.OK.value());
 
-                    logger.info("new token for user id =" + usersID + " generated.");
+                    logger.info("new token for user id = " + usersID + " generated.");
                 }
 
             } else {
@@ -247,7 +247,7 @@ public class WeatherServerController {
     public Map<String, List<Map>> getAllWeatherData(@RequestParam(value = "token") String sessionToken,
                                                     HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " querying all weather data");
+        logger.info("====> user with session token = " + sessionToken + " querying all weather data");
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -262,7 +262,7 @@ public class WeatherServerController {
                 return null;
             }
 
-            logger.info("User with id -" + token.getUser().getId() + " was allowed to getAllWeatherData");
+            logger.info("User with id = " + token.getUser().getId() + " was allowed to getAllWeatherData");
 
             AllWeatherData a = new AllWeatherData();
 
@@ -309,7 +309,7 @@ public class WeatherServerController {
                                                            @RequestParam(value = "id") long stationsID,
                                                            HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " querying all weather data for station with id=" + stationsID);
+        logger.info("====> user with session token = " + sessionToken + " querying all weather data for station with id= " + stationsID);
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -349,7 +349,7 @@ public class WeatherServerController {
     public List<Station> getAllStationsInfo(@RequestParam(value = "token") String sessionToken,
                                             HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " querying info for all stations");
+        logger.info("====> user with session token = " + sessionToken + " querying info for all stations");
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -364,8 +364,12 @@ public class WeatherServerController {
                 return null;
             }
 
+            List<Station> stations = stationRepository.findAll();
+
+            logger.info("info on all stations found and is about to be sent");
             response.setStatus(HttpStatus.OK.value());
-            return stationRepository.findAll();
+
+            return stations;
 
         } else {
 
@@ -385,7 +389,7 @@ public class WeatherServerController {
                               @RequestBody String newStationAsJson,
                               HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " adding new station");
+        logger.info("====> user with session token = " + sessionToken + " adding new station");
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -438,7 +442,7 @@ public class WeatherServerController {
                                  @RequestHeader(value = "station_id") Long stationId,
                                  HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " deleting the station with id=" + stationId);
+        logger.info("====> user with session token = " + sessionToken + " deleting the station with id= " + stationId);
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -464,7 +468,7 @@ public class WeatherServerController {
 
                 response.setStatus(HttpStatus.OK.value());
 
-                logger.info("Station with id=" + stationId + " was deleted");
+                logger.info("Station with id = " + stationId + " was deleted");
 
             } catch (Exception e) {
 
@@ -487,7 +491,7 @@ public class WeatherServerController {
                                    @RequestBody String updatedStationInfo,
                                    HttpServletResponse response) {
 
-        logger.info("====> user with session token =" + sessionToken + " changing the station with id=" + stationId);
+        logger.info("====> user with session token = " + sessionToken + " changing the station with id = " + stationId);
 
         Token token = tokenRepository.findByToken(sessionToken);
 
@@ -517,11 +521,11 @@ public class WeatherServerController {
 
                     response.setStatus(HttpStatus.OK.value());
 
-                    logger.info("Station with id=" + stationId + " was updated successfully");
+                    logger.info("Station with id = " + stationId + " was updated successfully");
 
                 } else {
 
-                    logger.info("Station with id=" + stationId + " not found");
+                    logger.info("Station with id = " + stationId + " not found");
 
                 }
             } catch (Exception e) {
@@ -544,7 +548,7 @@ public class WeatherServerController {
     @RequestMapping(value = "/available", method = RequestMethod.GET)
     public void serverIsAvailable(HttpServletResponse response) {
 
-        logger.info("====>  someone checking if server available");
+        logger.info("====>  Someone checking if the server id available");
         response.setStatus(HttpStatus.OK.value());
     }
 

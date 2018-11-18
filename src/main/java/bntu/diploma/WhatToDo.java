@@ -6,11 +6,13 @@ public class WhatToDo {
      *
      * TODO What to do list
      *
-     * Agenda: 3. method in Controller  for adding new station
+     * Agenda: todo what's wrong with it  ? -> 3. method in Controller  for adding new station
      *
-     * 8. Several controllers ?
+     * - write more unit tests and fix existing ones
      * 16. Make tokens expired after a period of AFK time
      * 18. Rename params to keep consistence
+     * - use hibernate validator to validate input do i need to do it here ?
+     * - split controller to two ones: one for weather station and one for GUI app ?
      *
      * DONE
      * 7. logging in WeatherServerController implemented (17.11.2018)

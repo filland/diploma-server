@@ -1,4 +1,4 @@
-package bntu.diploma.model;
+package bntu.diploma.domain;
 
 import bntu.diploma.repository.UserRepository;
 import org.junit.Test;

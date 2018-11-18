@@ -1,7 +1,7 @@
 package bntu.diploma.repository;
 
 
-import bntu.diploma.model.WeatherInfo;
+import bntu.diploma.domain.WeatherInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

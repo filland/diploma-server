@@ -1,4 +1,4 @@
-package bntu.diploma.model;
+package bntu.diploma.domain;
 
 import java.util.HashMap;
 import java.util.List;

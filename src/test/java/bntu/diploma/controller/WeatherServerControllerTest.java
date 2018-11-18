@@ -1,28 +1,23 @@
 package bntu.diploma.controller;
 
-import bntu.diploma.model.Oblast;
-import bntu.diploma.model.Station;
+import bntu.diploma.domain.Oblast;
+import bntu.diploma.domain.Station;
 import bntu.diploma.repository.StationRepository;
 import bntu.diploma.utils.AdvancedEncryptionStandard;
-import bntu.diploma.utils.SecureTokenGenerator;
 import com.google.gson.Gson;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +33,7 @@ public class WeatherServerControllerTest {
 
     @Autowired
     private WebApplicationContext wac;
+
     @Before
     public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
@@ -74,9 +70,11 @@ public class WeatherServerControllerTest {
                 apiKeyForFirstClient.getBytes(),
                 encryptionKeyForFirstClient.getBytes());
 
-        MvcResult result = mockMvc.perform(post("http://localhost:8080/login").
-                header("id", "1").content(encryptedApiKey)).andExpect(header().
-                exists("key")).andReturn();
+        MvcResult result = mockMvc.perform(post("http://localhost:8080/login")
+                .header("id", "1")
+                .content(encryptedApiKey))
+                .andExpect(header().exists("key"))
+                .andReturn();
 
         String token = result.getResponse().getHeader("key");
 
@@ -184,7 +182,7 @@ public class WeatherServerControllerTest {
         MvcResult result = mockMvc.perform(post("http://localhost:8080/login").
                 header("id", "1").content(encryptedApiKey)).
                 andExpect(header().
-                exists("key")).andReturn();
+                        exists("key")).andReturn();
 
         String token = result.getResponse().getHeader("key");
 
@@ -292,7 +290,6 @@ public class WeatherServerControllerTest {
         mockMvc.perform(
                 get("http://localhost:8080/available")).andExpect((status().isOk()));
     }
-
 
 
 }

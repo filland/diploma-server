@@ -1,6 +1,6 @@
 package bntu.diploma.repository;
 
-import bntu.diploma.model.User;
+import bntu.diploma.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

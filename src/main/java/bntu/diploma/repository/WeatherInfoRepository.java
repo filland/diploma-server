@@ -1,7 +1,7 @@
 package bntu.diploma.repository;
 
-import bntu.diploma.model.Station;
-import bntu.diploma.model.WeatherInfo;
+import bntu.diploma.domain.Station;
+import bntu.diploma.domain.WeatherInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
