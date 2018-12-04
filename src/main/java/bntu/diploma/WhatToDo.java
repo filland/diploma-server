@@ -4,17 +4,18 @@ public class WhatToDo {
 
     /**
      *
-     * TODO What to do list
+     * TODO todo list:
      *
-     * Agenda: todo what's wrong with it  ? -> 3. method in Controller  for adding new station
+     * Agenda: 16. Make tokens expired after a period of AFK time
      *
      * - write more unit tests and fix existing ones
-     * 16. Make tokens expired after a period of AFK time
+     *
      * 18. Rename params to keep consistence
      * - use hibernate validator to validate input do i need to do it here ?
      * - split controller to two ones: one for weather station and one for GUI app ?
      *
      * DONE
+     * -  what's wrong with it  ? -> 3. method in Controller  for adding new station. FIXED
      * 7. logging in WeatherServerController implemented (17.11.2018)
      * 14. Is a user want to loginUser check is his/her session is not expired her first and if yes then generate a new token
      * 17. Rename API resource paths !!! (e.g. 'station' -> 'all_stations')

@@ -1,7 +1,16 @@
 package bntu.diploma.controller;
 
-import bntu.diploma.domain.*;
-import bntu.diploma.repository.*;
+import bntu.diploma.domain.Station;
+import bntu.diploma.domain.User;
+import bntu.diploma.domain.Token;
+import bntu.diploma.domain.Oblast;
+import bntu.diploma.domain.WeatherInfo;
+import bntu.diploma.domain.AllWeatherData;
+import bntu.diploma.repository.StationRepository;
+import bntu.diploma.repository.UserRepository;
+import bntu.diploma.repository.WeatherInfoRepository;
+import bntu.diploma.repository.OblastRepository;
+import bntu.diploma.repository.TokenRepository;
 import bntu.diploma.utils.AdvancedEncryptionStandard;
 import bntu.diploma.utils.SecureTokenGenerator;
 import com.google.gson.Gson;
@@ -10,11 +19,22 @@ import com.google.gson.JsonParser;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
@@ -94,7 +114,7 @@ public class WeatherServerController {
             } catch (NumberFormatException e) {
 
                 logger.error("a parameter received from the station is invalid");
-                e.printStackTrace();
+                logger.error(e.getMessage());
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
 
@@ -140,7 +160,7 @@ public class WeatherServerController {
             } catch (Exception e) {
 
                 logger.error("Error while decrypting encrypted key ");
-                e.printStackTrace();
+                logger.error(e.getMessage());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 return;
             }
@@ -423,7 +443,7 @@ public class WeatherServerController {
             } catch (Exception e) {
 
                 logger.error("Json with info about new station is invalid");
-                e.printStackTrace();
+                logger.error(e.getMessage());
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
             }
 
@@ -532,7 +552,7 @@ public class WeatherServerController {
 
                 logger.error("Error while updating station info");
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
-                e.printStackTrace();
+                logger.error(e.getMessage());
             }
 
         } else {
